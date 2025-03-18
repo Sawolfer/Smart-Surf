@@ -10,12 +10,16 @@ import WebKit
 
 
 // https://ru.wikipedia.org/wiki/%D0%9E%D0%BF%D0%BE%D1%81%D1%81%D1%83%D0%BC%D0%BE%D0%B2%D1%8B%D0%B5
+
 class WebViewLoader: NSObject, WKNavigationDelegate {
     var webView: WKWebView?
     var resultHandler: ((String) -> Void)?
     
+    let summarize: TextSummarizer
+    
     override init() {
         let config = WKWebViewConfiguration()
+        summarize = TextSummarizer()
     
         self.webView = WKWebView(frame: .zero, configuration: config)
         super.init()
@@ -62,6 +66,10 @@ class WebViewLoader: NSObject, WKNavigationDelegate {
         """) { (result, error) in
             if let content = result as? String {
                 print("Cleaned Content:\n\(content)")
+                let summary = content.split(separator: "\n").prefix(10).joined(separator: "\n")
+                print("----------SUMMARY----------")
+                print(summary)
+                print("---------------------------\n")
             } else if let error = error {
                 print("Error extracting content: \(error)")
             }
