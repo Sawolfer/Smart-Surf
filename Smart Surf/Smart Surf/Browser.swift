@@ -38,6 +38,7 @@ class PageContainer: ObservableObject {
 struct PageView: View {
     @ObservedObject var page: Page
     @EnvironmentObject var pageContainer: PageContainer
+    @ObservedObject var webViewModel: WebViewModel
     
     var body: some View {
         HStack{
@@ -48,17 +49,23 @@ struct PageView: View {
                 pageContainer.removePage(index: page.id)
             }
         }
+        .contentShape(Rectangle())
+        
+        .onTapGesture {
+            webViewModel.loadURL(page.url)
+        }
     }
+    
 }
 
 struct PageContainerView: View {
     @EnvironmentObject var pageContainer: PageContainer
-    
+    @ObservedObject var webViewModel: WebViewModel
     
     var body: some View {
         HStack {
             ForEach(pageContainer.pages) { page in
-                PageView(page: page)
+                PageView(page: page, webViewModel: webViewModel)
             }
             .onDelete(perform: removePage)
         }
@@ -74,9 +81,20 @@ class WebViewModel: ObservableObject {
     let webView = WKWebView()
     
     func loadURL(_ url: String) {
-        if let requestURL = URL(string: url) {
-            webView.load(URLRequest(url: requestURL))
+        var validURL: String
+        
+        if isValidURL(url){
+            webView.load(URLRequest(url: URL(string: url)!))
         }
+        else {
+            let query = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+            validURL = "https://www.google.com/search?q=\(query)"
+            
+            if let requestURL = URL(string: validURL){
+                webView.load(URLRequest(url: requestURL))
+            }
+        }
+        
     }
     
     func goBack() {
@@ -89,6 +107,10 @@ class WebViewModel: ObservableObject {
         if webView.canGoForward {
             webView.goForward()
         }
+    }
+    
+    private func isValidURL(_ string: String) -> Bool {
+        return string.hasPrefix("http://") || string.hasPrefix("https://")
     }
 }
 
@@ -122,6 +144,8 @@ struct ContentView: View {
                 
                 TextField("Enter URL", text: $url, onCommit: {
                     webViewModel.loadURL(url)
+                    let newPage = Page(url: url, name: url)
+                    pageContainer.addPage(newPage)
                 })
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .disableAutocorrection(true)
@@ -129,14 +153,13 @@ struct ContentView: View {
                 
                 Button("Go") {
                     webViewModel.loadURL(url)
-                    let newPage = Page(url: url, name: "newPage")
+                    let newPage = Page(url: url, name: url)
                     pageContainer.addPage(newPage)
-                    print(pageContainer.pages.count)
                 }
                 .padding()
             }
             
-            PageContainerView()
+            PageContainerView(webViewModel: webViewModel)
             .environmentObject(pageContainer)
             
             WebView(model: webViewModel)
