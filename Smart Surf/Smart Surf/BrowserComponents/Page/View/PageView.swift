@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PageView: View {
-    @ObservedObject var page: Page
+    @StateObject var page: Page
     @EnvironmentObject var pageContainer: PageContainer
     @ObservedObject var webViewModel: WebViewModel
 
@@ -17,7 +17,7 @@ struct PageView: View {
             Text(webViewModel.getTitle())
                 .font(.headline)
             Spacer()
-            Button("x") {
+            Button("X") {
                 pageContainer.removePage(index: page.id)
             }
         }

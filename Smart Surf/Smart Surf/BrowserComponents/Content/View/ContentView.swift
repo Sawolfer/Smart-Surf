@@ -8,42 +8,38 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var pageContainer = PageContainer()
-    @State private var url: String = "https://www.apple.com"
-    @StateObject private var webViewModel = WebViewModel()
+    @StateObject private var viewModel = ContentViewModel()
 
     var body: some View {
         VStack {
             HStack {
                 Button("←") {
-                    webViewModel.goBack()
+                    viewModel.goBack()
                 }
                 .padding()
 
                 Button("→") {
-                    webViewModel.goForward()
+                    viewModel.goForward()
                 }
                 .padding()
 
-                TextField("Enter URL", text: $url, onCommit: {
-                    webViewModel.loadURL(url)
-                    pageContainer.addPage(Page(url: url, name: url))
+                TextField("Enter URL", text: $viewModel.url, onCommit: {
+                    viewModel.openURL()
                 })
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .disableAutocorrection(true)
                 .frame(width: 300)
-
+//TODO: move to the constants, remove go button 
                 Button("Go") {
-                    webViewModel.loadURL(url)
-                    pageContainer.addPage(Page(url: url, name: url))
+                    viewModel.openURL()
                 }
                 .padding()
             }
 
-            PageContainerView(webViewModel: webViewModel)
-                .environmentObject(pageContainer)
+            PageContainerView(webViewModel: viewModel.webViewModel)
+                .environmentObject(viewModel.pageContainer)
 
-            WebView(model: webViewModel)
+            WebView(model: viewModel.webViewModel)
                 .frame(minWidth: 600, minHeight: 400)
         }
     }

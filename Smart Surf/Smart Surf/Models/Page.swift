@@ -9,8 +9,8 @@ import Foundation
 import SwiftUI
 
 class Page: Identifiable, ObservableObject {
-    var url: String
-    var name: String
+    @Published var url: String
+    @Published var name: String
     let id = UUID()
 
     init() {
