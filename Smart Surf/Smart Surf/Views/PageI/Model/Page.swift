@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import SwiftUI
+
 
 class Page: Identifiable, ObservableObject {
     @Published var url: String
@@ -21,17 +21,5 @@ class Page: Identifiable, ObservableObject {
     init(url: String, name: String) {
         self.url = url
         self.name = name
-    }
-}
-
-class PageContainer: ObservableObject {
-    @Published var pages: [Page] = []
-
-    func addPage(_ page: Page) {
-        pages.append(page)
-    }
-
-    func removePage(index: UUID) {
-        pages.removeAll { $0.id == index }
     }
 }

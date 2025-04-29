@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct SimpleBrowserApp: App {
+    @StateObject var pageContainer = PageContainer()
+    @StateObject var webViewModel = WebViewModel()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(pageContainer)
+                .environmentObject(webViewModel)
         }
     }
 }
