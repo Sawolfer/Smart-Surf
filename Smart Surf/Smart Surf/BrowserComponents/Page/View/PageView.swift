@@ -7,23 +7,38 @@
 
 import SwiftUI
 
+// MARK: - PageView
 struct PageView: View {
-    @ObservedObject var page: Page
-    @EnvironmentObject var pageContainer: PageContainer
-    @ObservedObject var webViewModel: WebViewModel
+    @ObservedObject var page: PageModel
+    var isSelected: Bool
+    var onSelect: () -> Void
+    var onDelete: () -> Void
 
     var body: some View {
-        HStack {
-            Text(webViewModel.getTitle())
+        HStack(alignment: .center) {
+            Text(page.name)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
                 .font(.headline)
-            Spacer()
-            Button("x") {
-                pageContainer.removePage(index: page.id)
+                .lineLimit(1)
+
+            Button(action: onDelete) {
+                Image(systemName: "x.circle")
             }
+            .buttonStyle(.plain)
         }
-        .contentShape(Rectangle())
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(isSelected ? Color.blue.opacity(0.2) : Color.clear)
+        .cornerRadius(8)
         .onTapGesture {
-            webViewModel.loadURL(page.url)
+            onSelect()
+            page.webViewModel.loadURL(page.url)
         }
+        .onReceive(page.webViewModel.$currentURL) { newURL in
+           if isSelected {
+               page.url = newURL
+           }
+       }
     }
 }

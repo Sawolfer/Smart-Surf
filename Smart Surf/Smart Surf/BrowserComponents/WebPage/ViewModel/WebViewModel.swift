@@ -7,8 +7,15 @@
 
 import WebKit
 
-class WebViewModel: ObservableObject {
+class WebViewModel: NSObject, ObservableObject {
+    @Published var currentTitle: String = ""
+    @Published var currentURL: String = ""
     let webView = WKWebView()
+
+    override init() {
+        super.init()
+        webView.navigationDelegate = self
+    }
 
     func loadURL(_ url: String) {
         var validURL: String
@@ -42,5 +49,12 @@ class WebViewModel: ObservableObject {
 
     private func isValidURL(_ string: String) -> Bool {
         return string.hasPrefix("http://") || string.hasPrefix("https://")
+    }
+}
+
+extension WebViewModel: WKNavigationDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        self.currentTitle = webView.title ?? ""
+        self.currentURL = webView.url?.absoluteString ?? ""
     }
 }
