@@ -43,6 +43,23 @@ struct ContentView: View {
                 }
             }
         }
+        .onAppear {
+            if pageContainer.pages.isEmpty {
+                addNewPage(url: urlInput)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .createNewPage)) { notification in
+            if let url = notification.object as? String {
+                addNewPage(url: url)
+            }
+        }
+    }
+
+    private func addNewPage(url: String) {
+        let newPage = PageModel(url: url, name: url)
+        pageContainer.addPage(newPage)
+        selectedPageID = newPage.id
+        newPage.webViewModel.loadURL(url, createNewPage: false)
     }
 
     // MARK: - Subviews
