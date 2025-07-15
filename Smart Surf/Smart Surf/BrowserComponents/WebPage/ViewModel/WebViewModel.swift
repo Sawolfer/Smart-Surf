@@ -53,22 +53,21 @@ class WebViewModel: NSObject, ObservableObject {
     }
 }
 
-extension WebViewModel: WKNavigationDelegate {
+extension WebViewModel: WKNavigationDelegate, WKUIDelegate {
     // WKNavigationDelegate method
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         DispatchQueue.main.async {
             if let url = webView.url?.absoluteString, url != self.currentURL {
                 self.currentURL = url
-//                self.loadURL(url, createNewPage: false)
             }
         }
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        print("\(navigationAction.request.url): \(navigationAction.navigationType.rawValue)")
         if navigationAction.navigationType == .linkActivated {
             if let url = navigationAction.request.url {
-                loadURL(url.absoluteString, createNewPage: false)
+                webView.load(navigationAction.request)
+//                loadURL(url.absoluteString, createNewPage: false)
             }
             decisionHandler(.cancel)
             return
@@ -76,10 +75,24 @@ extension WebViewModel: WKNavigationDelegate {
         decisionHandler(.allow)
     }
 
+//    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+//        guard let url = navigationAction.request.url else { return nil }
+//        loadURL(url.absoluteString, createNewPage: true)
+//        return nil
+//    }
+
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
-        guard let url = navigationAction.request.url else { return nil }
-        loadURL(url.absoluteString, createNewPage: true)
-        return nil
+        if navigationAction.targetFrame == nil {
+            let webViewtemp = WKWebView(
+                               frame: webView.bounds,
+                               configuration: configuration
+                              )
+             webViewtemp.navigationDelegate = self
+             return webViewtemp
+        } else {
+            webView.load(navigationAction.request)
+            return webView
+        }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -91,6 +104,10 @@ extension WebViewModel: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         self.currentTitle = webView.title ?? self.currentURL
+    }
+
+    func webViewDidClose(_ webView: WKWebView) {
+        webView.removeFromSuperview()
     }
 }
 

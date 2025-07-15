@@ -7,10 +7,16 @@
 
 import Foundation
 import SwiftUI
+import WebKit
 
 struct ContentView: View {
     @StateObject var pageContainer = PageContainer()
     @State private var urlInput: String = "https://www.apple.com"
+    @State private var currentURL = URL(string: "https://www.google.com")! {
+        didSet {
+            urlInput = currentURL.absoluteString
+        }
+    }
     @State private var selectedPageID: UUID?
 
     @State var sideBarIsHidden: Bool = true
@@ -26,14 +32,18 @@ struct ContentView: View {
                 VStack (spacing: 4) {
                     pageNavigation
                     if let selectedPage = pageContainer.pages.first(where: { $0.id == selectedPageID }) {
-                        WebView(model: selectedPage.webViewModel)
+                        WKWebViewRepresentable(url: $currentURL) { newURL in
+                            currentURL = newURL
+                            selectedPage.url = currentURL.absoluteString
+                            selectedPage.setupName()
+                        }
                             .frame(minWidth: 600, minHeight: 400)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .padding(.horizontal, 12)
                             .padding(.bottom, 12)
                             .id(selectedPage.id)
                             .onReceive(selectedPage.webViewModel.$currentURL) { newURL in
-                                urlInput = newURL
+                                currentURL = URL(string: newURL)!
                             }
                     } else {
                         Text("No page selected")
