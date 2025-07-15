@@ -6,9 +6,13 @@
 //
 
 import SwiftUI
+import AppKit
 
 @main
 struct SimpleBrowserApp: App {
+
+    @State var titleBar: Bool = false
+
     var body: some Scene {
         WindowGroup {
             ContentView()

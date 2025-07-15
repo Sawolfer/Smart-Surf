@@ -27,6 +27,9 @@ struct PageView: View {
             }
             .buttonStyle(.plain)
         }
+        .contentShape(
+            RoundedRectangle(cornerRadius: 12)
+        )
         .padding(.vertical, 6)
         .padding(.horizontal, 8)
         .background(isSelected ? Color.blue.opacity(0.2) : Color.clear)

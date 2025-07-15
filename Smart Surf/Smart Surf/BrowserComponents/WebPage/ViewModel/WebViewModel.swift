@@ -5,6 +5,7 @@
 //  Created by Савва Пономарев on 12.04.2025.
 //
 
+import SwiftUI
 import WebKit
 
 class WebViewModel: NSObject, ObservableObject {
@@ -58,11 +59,33 @@ extension WebViewModel: WKNavigationDelegate {
         DispatchQueue.main.async {
             if let url = webView.url?.absoluteString, url != self.currentURL {
                 self.currentURL = url
-                if self.shouldCreateNewPageOnNavigation {
-                    self.shouldCreateNewPageOnNavigation = false
-                    NotificationCenter.default.post(name: .createNewPage, object: url)
-                }
+//                self.loadURL(url, createNewPage: false)
             }
+        }
+    }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        print("\(navigationAction.request.url): \(navigationAction.navigationType.rawValue)")
+        if navigationAction.navigationType == .linkActivated {
+            if let url = navigationAction.request.url {
+                loadURL(url.absoluteString, createNewPage: false)
+            }
+            decisionHandler(.cancel)
+            return
+        }
+        decisionHandler(.allow)
+    }
+
+    func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        guard let url = navigationAction.request.url else { return nil }
+        loadURL(url.absoluteString, createNewPage: true)
+        return nil
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        print("⚠️ Load failed: \(error.localizedDescription)")
+        if (error as NSError).code == -999 {
+            print("Cancelled by WebKit or delegate")
         }
     }
 
@@ -75,3 +98,5 @@ extension WebViewModel: WKNavigationDelegate {
 extension Notification.Name {
     static let createNewPage = Notification.Name("createNewPage")
 }
+
+//https://www.google.com/url?q=https://www.ozon.ru/&sa=U&ved=2ahUKEwj0q83ax76OAxXOgSoKHYFfAU4QFnoECAMQAg&usg=AOvVaw2fgV5HDCAPDQ-GAaHgZ7ex

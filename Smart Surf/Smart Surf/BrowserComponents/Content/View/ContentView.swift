@@ -52,6 +52,7 @@ struct ContentView: View {
             if let url = notification.object as? String {
                 addNewPage(url: url)
             }
+
         }
     }
 
@@ -127,17 +128,19 @@ struct SideBar: View {
     @Binding var selectedPageID: UUID?
 
     var body: some View {
-        if !isHidden {
-            ScrollView {
-                VStack(alignment: .trailing) {
-                    ForEach(pages.pages) { page in
-                        pageView(page: page)
+        VStack {
+            if !isHidden {
+                ScrollView {
+                    VStack(alignment: .trailing) {
+                        ForEach(pages.pages) { page in
+                            pageView(page: page)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
+                .frame(width: 200)
+                .glass(cornerRadius: 20)
             }
-            .frame(width: 200)
-            .glass(cornerRadius: 20)
         }
     }
 

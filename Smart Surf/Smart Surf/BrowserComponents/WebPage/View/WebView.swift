@@ -15,5 +15,5 @@ struct WebView: NSViewRepresentable {
         return model.webView
     }
 
-    func updateNSView(_ webView: WKWebView, context: Context) {}
+    func updateNSView(_ webView: WKWebView, context: Context) { }
 }

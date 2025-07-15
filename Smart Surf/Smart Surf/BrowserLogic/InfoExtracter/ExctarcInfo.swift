@@ -9,7 +9,7 @@ import Foundation
 import WebKit
 
 
-// https://ru.wikipedia.org/wiki/%D0%9E%D0%BF%D0%BE%D1%81%D1%81%D1%83%D0%BC%D0%BE%D0%B2%D1%8B%D0%B5
+// https://en-US.wikipedia.org/wiki/%D0%9E%D0%BF%D0%BE%D1%81%D1%81%D1%83%D0%BC%D0%BE%D0%B2%D1%8B%D0%B5
 
 class WebViewLoader: NSObject, WKNavigationDelegate {
     var webView: WKWebView?
